@@ -43,7 +43,7 @@ ANYDRIVE_3_LSTM_ACTUATOR_CFG = ActuatorNetLSTMCfg(
 ##
 ELSPIDER_AIR_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path="/home/raymon/Documents/CodeSpace/IssacSim/hexapod_robot_assets/model_usd/elspider_air/isaacsim_importer/elspider_air.usd",
+        usd_path="/home/raymon/Documents/CodeSpace/IssacSim/hexapod_robot_assets/model_usd/elspider_air/isaacsim_importer/elspider_air_rebase.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -59,7 +59,7 @@ ELSPIDER_AIR_CFG = ArticulationCfg(
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.3),
+        pos=(0.0, 0.0, 0.25),
         joint_pos={
             ".*HAA": 0.0,  # all HAA
             ".*HFE": 0.0,  # both front HFE
