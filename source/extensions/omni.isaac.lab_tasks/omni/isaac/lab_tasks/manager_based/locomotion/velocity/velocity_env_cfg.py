@@ -252,6 +252,7 @@ class RewardsCfg:
     # -- optional penalties
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
     dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
+    base_height = RewTerm(func=mdp.base_height_l2, weight=0.0, params={"target_height": 0.22})
 
 
 @configclass
