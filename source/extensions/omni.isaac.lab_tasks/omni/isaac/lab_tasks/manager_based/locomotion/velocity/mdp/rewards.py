@@ -38,6 +38,25 @@ def feet_air_time(
     return reward
 
 
+def feet_air_time_pena(env, command_name: str, sensor_cfg: SceneEntityCfg, threshold: float) -> torch.Tensor:
+    """Penalize feet hovering in the air for too long.
+
+    This function penalizes the agent for keeping its feet in the air for too long. The penalty is 
+    computed as the sum of the time for which the feet are in the air that exceeds the threshold.
+
+    If the commands are small (i.e. the agent is not supposed to take a step), then the reward is zero.
+    """
+    # extract the used quantities (to enable type-hinting)
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    # compute the reward
+    # current_contact_time = contact_sensor.data.current_contact_time[:, sensor_cfg.body_ids]
+    current_air_time = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids]
+    reward = torch.sum((threshold - current_air_time) * (current_air_time > threshold), dim=1)
+    # no reward for zero command
+    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    return reward
+
+
 def feet_air_time_positive_biped(env, command_name: str, threshold: float, sensor_cfg: SceneEntityCfg) -> torch.Tensor:
     """Reward long steps taken by the feet for bipeds.
 
