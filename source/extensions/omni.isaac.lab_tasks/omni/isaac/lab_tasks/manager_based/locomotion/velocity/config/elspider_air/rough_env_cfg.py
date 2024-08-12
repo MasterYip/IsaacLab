@@ -43,7 +43,13 @@ class ElSpiderAirRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
             func=mdp.track_ang_vel_z_exp, weight=2.5, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
         )
         self.rewards.dof_acc_l2 = RewTerm(func=mdp.joint_acc_l2, weight=-5e-9)
-        self.rewards.base_height = RewTerm(func=mdp.base_height_l2, weight=-100.0, params={"target_height": 0.26})
+
+        self.rewards.undesired_contacts = RewTerm(
+            func=mdp.undesired_contacts,
+            weight=-5.0,
+            params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*(THIGH|HIP)"), "threshold": 1.0},
+        )
+
         self.rewards.feet_air_time_penalty = RewTerm(
             func=mdp.feet_air_time_pena,
             weight=1.0,
