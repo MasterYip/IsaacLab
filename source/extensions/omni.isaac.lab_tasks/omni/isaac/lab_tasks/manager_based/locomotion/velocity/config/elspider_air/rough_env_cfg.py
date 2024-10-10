@@ -11,6 +11,10 @@ from omni.isaac.lab_tasks.manager_based.locomotion.velocity.velocity_env_cfg imp
 # Pre-defined configs
 ##
 from omni.isaac.lab_assets.elspider_air import ELSPIDER_AIR_CFG  # isort: skip
+from omni.isaac.lab.managers import SceneEntityCfg
+from omni.isaac.lab.managers import TerminationTermCfg as DoneTerm
+import omni.isaac.lab_tasks.manager_based.locomotion.velocity.mdp as mdp
+
 
 @configclass
 class ElSpiderAirRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
@@ -19,9 +23,18 @@ class ElSpiderAirRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         super().__post_init__()
         # switch robot to elspider air
         self.scene.robot = ELSPIDER_AIR_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        # FIXME: the base contact_force is triggered randomly
+        # self.terminations.base_contact = DoneTerm(
+        #     func=mdp.illegal_contact,
+        #     params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="base"), "threshold": 1.0},
+        # )
+        # self.terminations.base_contact = None
+        self.terminations.base_contact = DoneTerm(
+            func=mdp.root_height_below_minimum,
+            params={"minimum_height": 0.10})
 
 
-@configclass
+@ configclass
 class ElSpiderAirRoughEnvCfg_PLAY(ElSpiderAirRoughEnvCfg):
     def __post_init__(self):
         # post init of parent
