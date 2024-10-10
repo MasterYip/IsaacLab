@@ -253,6 +253,15 @@ class RewardsCfg:
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
     dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
     base_height = RewTerm(func=mdp.base_height_l2, weight=0.0, params={"target_height": 0.22})
+    feet_air_time_penalty = RewTerm(
+        func=mdp.feet_air_time_pena,
+        weight=0.0,
+        params={
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*FOOT"),
+            "command_name": "base_velocity",
+            "threshold": 5,
+        },
+    )
 
 
 @configclass
