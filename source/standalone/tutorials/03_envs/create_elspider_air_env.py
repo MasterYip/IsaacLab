@@ -26,7 +26,7 @@ from omni.isaac.lab.app import AppLauncher
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Tutorial on creating a quadruped base environment.")
-parser.add_argument("--num_envs", type=int, default=64, help="Number of environments to spawn.")
+parser.add_argument("--num_envs", type=int, default=2, help="Number of environments to spawn.")
 
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
@@ -126,8 +126,13 @@ class MySceneCfg(InteractiveSceneCfg):
 @configclass
 class ActionsCfg:
     """Action specifications for the MDP."""
-
-    joint_pos = mdp.JointPositionActionCfg(asset_name="robot", joint_names=[".*"], scale=0.5, use_default_offset=True)
+    joint_names = ["RF_HAA", "RF_HFE", "RF_KFE",
+                   "RM_HAA", "RM_HFE", "RM_KFE",
+                   "RH_HAA", "RH_HFE", "RH_KFE",
+                   "LF_HAA", "LF_HFE", "LF_KFE",
+                   "LM_HAA", "LM_HFE", "LM_KFE",
+                   "LH_HAA", "LH_HFE", "LH_KFE"]
+    joint_pos = mdp.JointPositionActionCfg(asset_name="robot", joint_names=joint_names, scale=0.5, use_default_offset=True)
 
 
 @configclass
@@ -213,7 +218,7 @@ def main():
         raise FileNotFoundError(f"Policy file '{policy_path}' does not exist.")
     file_bytes = read_file(policy_path)
     # jit load the policy
-    policy = torch.jit.load(file_bytes).to(env.device).eval()
+    # policy = torch.jit.load(file_bytes).to(env.device).eval()
 
     # simulate physics
     count = 0
@@ -229,7 +234,15 @@ def main():
             # infer action
             # action = policy(obs["policy"])
             # rand action
-            action = torch.rand(env.num_envs, env.action_manager.total_action_dim, device=env.device) * 2 - 1
+            # action = torch.rand(env.num_envs, env.action_manager.total_action_dim, device=env.device) * 2 - 1
+            
+            # zero action
+            # action = torch.zeros(env.num_envs, env.action_manager.total_action_dim, device=env.device)
+            action_list = []
+            for i in range(env.num_envs):
+                action_list.append([0.4, 1, 0] * 6)
+            action = torch.tensor(action_list, device=env.device)
+            # action = torch.tensor(env.num_envs, numpy.array([0, 0, 1] * 6), device=env.device)
             # step env
             obs, _ = env.step(action)
             # update counter
