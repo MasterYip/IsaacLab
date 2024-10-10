@@ -122,17 +122,52 @@ class MySceneCfg(InteractiveSceneCfg):
 # MDP settings
 ##
 
-
 @configclass
 class ActionsCfg:
     """Action specifications for the MDP."""
-    joint_names = ["RF_HAA", "RF_HFE", "RF_KFE",
-                   "RM_HAA", "RM_HFE", "RM_KFE",
-                   "RH_HAA", "RH_HFE", "RH_KFE",
-                   "LF_HAA", "LF_HFE", "LF_KFE",
-                   "LM_HAA", "LM_HFE", "LM_KFE",
-                   "LH_HAA", "LH_HFE", "LH_KFE"]
-    joint_pos = mdp.JointPositionActionCfg(asset_name="robot", joint_names=joint_names, scale=0.5, use_default_offset=True)
+    joint_pos = mdp.JointPositionActionCfg(asset_name="robot", joint_names=[".*"],
+                                           scale=0.5, use_default_offset=True)
+
+
+def joint_remap(q):
+    """URDF imported robot joints are resolved
+    in alphabetical order, remap to correct order.
+
+    origin order:
+     ['LB_HAA', 'LF_HAA', 'LM_HAA',
+     'RB_HAA', 'RF_HAA', 'RM_HAA',
+     'LB_HFE', 'LF_HFE', 'LM_HFE',
+     'RB_HFE', 'RF_HFE', 'RM_HFE',
+     'LB_KFE', 'LF_KFE', 'LM_KFE',
+     'RB_KFE', 'RF_KFE', 'RM_KFE']
+
+     normal order:
+     ["RF_HAA", "RF_HFE", "RF_KFE",
+        "RM_HAA", "RM_HFE", "RM_KFE",
+        "RB_HAA", "RB_HFE", "RB_KFE",
+        "LF_HAA", "LF_HFE", "LF_KFE",
+        "LM_HAA", "LM_HFE", "LM_KFE",
+        "LB_HAA", "LB_HFE", "LB_KFE"]
+
+    Args:
+        q (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # remap = [4, 10, 16,
+    #          5, 11, 17,
+    #          3, 9, 15,
+    #          1, 7, 13,
+    #          2, 8, 14,
+    #          0, 6, 12]
+    remap_inv = [15, 9, 12,
+                 6, 0, 3,
+                 16, 10, 13,
+                 7, 1, 4,
+                 17, 11, 14,
+                 8, 2, 5]
+    return [q[i] for i in remap_inv]
 
 
 @configclass
@@ -210,7 +245,7 @@ def main():
     # setup base environment
     env_cfg = QuadrupedEnvCfg()
     env = ManagerBasedEnv(cfg=env_cfg)
-
+    print(env_cfg.actions.joint_pos.joint_names)
     # load level policy
     policy_path = ISAACLAB_NUCLEUS_DIR + "/Policies/ANYmal-C/HeightScan/policy.pt"
     # check if policy file exists
@@ -235,12 +270,12 @@ def main():
             # action = policy(obs["policy"])
             # rand action
             # action = torch.rand(env.num_envs, env.action_manager.total_action_dim, device=env.device) * 2 - 1
-            
+
             # zero action
             # action = torch.zeros(env.num_envs, env.action_manager.total_action_dim, device=env.device)
             action_list = []
             for i in range(env.num_envs):
-                action_list.append([0.4, 1, 0] * 6)
+                action_list.append(joint_remap([0, 0, 2] * 6))
             action = torch.tensor(action_list, device=env.device)
             # action = torch.tensor(env.num_envs, numpy.array([0, 0, 1] * 6), device=env.device)
             # step env
