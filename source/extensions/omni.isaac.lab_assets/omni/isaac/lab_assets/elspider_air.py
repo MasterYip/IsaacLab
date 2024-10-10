@@ -59,11 +59,11 @@ ELSPIDER_AIR_CFG = ArticulationCfg(
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.25),
+        pos=(0.0, 0.0, 0.24),
         joint_pos={
             ".*HAA": 0.0,  # all HAA
-            ".*HFE": 0.0,  # both front HFE
-            ".*KFE": 0.0,  # both hind KFE
+            ".*HFE": 1.0,  # both front HFE
+            ".*KFE": 1.3,  # both hind KFE
         },
     ),
     actuators={"legs": ANYDRIVE_3_LSTM_ACTUATOR_CFG},

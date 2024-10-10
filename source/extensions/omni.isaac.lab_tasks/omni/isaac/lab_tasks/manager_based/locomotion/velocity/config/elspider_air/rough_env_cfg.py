@@ -10,9 +10,12 @@ from omni.isaac.lab_tasks.manager_based.locomotion.velocity.velocity_env_cfg imp
 ##
 # Pre-defined configs
 ##
+
+import math
 from omni.isaac.lab_assets.elspider_air import ELSPIDER_AIR_CFG  # isort: skip
 from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.managers import TerminationTermCfg as DoneTerm
+from omni.isaac.lab.managers import RewardTermCfg as RewTerm
 import omni.isaac.lab_tasks.manager_based.locomotion.velocity.mdp as mdp
 
 
@@ -28,10 +31,16 @@ class ElSpiderAirRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         #     func=mdp.illegal_contact,
         #     params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="base"), "threshold": 1.0},
         # )
-        # self.terminations.base_contact = None
-        self.terminations.base_contact = DoneTerm(
-            func=mdp.root_height_below_minimum,
-            params={"minimum_height": 0.10})
+
+        self.terminations.base_contact = None
+        # self.terminations.base_contact = DoneTerm(
+        #     func=mdp.root_height_below_minimum,
+        #     params={"minimum_height": 0.10})
+        self.rewards.track_lin_vel_xy_exp = RewTerm(
+            func=mdp.track_lin_vel_xy_exp, weight=5.0, params={"command_name": "base_velocity", "std": math.sqrt(0.25)}
+        )
+        self.rewards.base_height = RewTerm(func=mdp.base_height_l2, weight=-100.0, params={"target_height": 0.26})
+        self.rewards.dof_acc_l2 = RewTerm(func=mdp.joint_acc_l2, weight=-5e-9)
 
 
 @ configclass
