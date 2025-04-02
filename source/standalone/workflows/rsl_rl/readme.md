@@ -3,6 +3,15 @@
 Problem:
 - It is blocked by loading resources from the server.
 
+Solution: Edit `source/extensions/omni.isaac.lab/omni/isaac/lab/utils/assets.py`:
+
+```python
+# NUCLEUS_ASSET_ROOT_DIR = carb.settings.get_settings().get("/persistent/isaac/asset_root/cloud")
+# Use localhost server
+NUCLEUS_ASSET_ROOT_DIR = "omniverse://localhost/NVIDIA/Assets/Isaac/4.2"
+"""Path to the root directory on the Nucleus Server."""
+```
+
 Task names:
 - Isaac-Velocity-Flat-ElSpider-Air-v0
 - Isaac-Velocity-Rough-ElSpider-Air-v0
