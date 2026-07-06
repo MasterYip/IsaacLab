@@ -34,7 +34,7 @@ Play variants (smaller scene, no randomization): add `-Play` suffix, e.g. `Isaac
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1-v0
 
 # 29 DOF variant
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1_29DOF-v0
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1_29DOF-v0 --num_envs 48
 
 # Specify a checkpoint file directly
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1_29DOF-v0 \
