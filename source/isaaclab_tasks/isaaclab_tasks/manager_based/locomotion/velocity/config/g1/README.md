@@ -5,6 +5,7 @@
 | Task ID | DOF | Robot Asset |
 |---------|-----|-------------|
 | `Isaac-Velocity-Rough-G1-v0` | 37 | `G1_MINIMAL_CFG` (USD, with hands) |
+| `Isaac-Velocity-Rough-G1_MINIMAL_23DOF-v0` | 23 | `G1_MINIMAL_CFG` (USD, hands frozen) |
 | `Isaac-Velocity-Rough-G1_29DOF-v0` | 29 | `G1_29DOF_CFG` (URDF, no hands) |
 | `Isaac-Velocity-Flat-G1-v0` | 37 | `G1_MINIMAL_CFG` (USD, with hands) |
 
@@ -18,6 +19,9 @@ Play variants (smaller scene, no randomization): add `-Play` suffix, e.g. `Isaac
 
 # 29 DOF (no hands) — rough terrain
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1_29DOF-v0
+
+# Minimal 29DOF (G1_MINIMAL_CFG, hands frozen) — rough terrain
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1_MINIMAL_23DOF-v0
 
 # 37 DOF — flat terrain
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Flat-G1-v0
@@ -35,6 +39,9 @@ Play variants (smaller scene, no randomization): add `-Play` suffix, e.g. `Isaac
 
 # 29 DOF variant
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1_29DOF-v0 --num_envs 48
+
+# Minimal 29DOF variant (G1_MINIMAL_CFG, hands frozen)
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1_MINIMAL_23DOF-v0 --num_envs 48
 
 # Specify a checkpoint file directly
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1_29DOF-v0 \
