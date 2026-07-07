@@ -18,7 +18,7 @@ Play variants (smaller scene, no randomization): add `-Play` suffix, e.g. `Isaac
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1-v0
 
 # 29 DOF (no hands) — rough terrain
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1_29DOF-v0
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1_29DOF-v0 --num_envs 2000 --headless --max_iterations 30000
 
 # Minimal 29DOF (G1_MINIMAL_CFG, hands frozen) — rough terrain
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1_MINIMAL_23DOF-v0
