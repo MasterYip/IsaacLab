@@ -7,6 +7,7 @@
 | `Isaac-Velocity-Rough-G1-v0` | 37 | `G1_MINIMAL_CFG` (USD, with hands) |
 | `Isaac-Velocity-Rough-G1_MINIMAL_23DOF-v0` | 23 | `G1_MINIMAL_CFG` (USD, hands frozen) |
 | `Isaac-Velocity-Rough-G1_29DOF-v0` | 29 | `G1_29DOF_CFG` (URDF, no hands) |
+| `Isaac-Velocity-Rough-G1_UNITREE_29DOF-v0` | 29 | `UNITREE_G1_29DOF_CFG` (USD, unitree_rl_lab) |
 | `Isaac-Velocity-Flat-G1-v0` | 37 | `G1_MINIMAL_CFG` (USD, with hands) |
 
 Play variants (smaller scene, no randomization): add `-Play` suffix, e.g. `Isaac-Velocity-Rough-G1-Play-v0`.
@@ -21,7 +22,10 @@ Play variants (smaller scene, no randomization): add `-Play` suffix, e.g. `Isaac
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1_29DOF-v0 --num_envs 2000 --headless --max_iterations 30000
 
 # Minimal 29DOF (G1_MINIMAL_CFG, hands frozen) — rough terrain
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1_MINIMAL_23DOF-v0
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1_MINIMAL_23DOF-v0 --num_envs 2000 --headless --max_iterations 30000
+
+# UNITREE 29DOF (USD model from unitree_rl_lab) — rough terrain
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Rough-G1_UNITREE_29DOF-v0 --num_envs 2000 --headless --max_iterations 30000
 
 # 37 DOF — flat terrain
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py --task Isaac-Velocity-Flat-G1-v0
@@ -42,6 +46,9 @@ Play variants (smaller scene, no randomization): add `-Play` suffix, e.g. `Isaac
 
 # Minimal 29DOF variant (G1_MINIMAL_CFG, hands frozen)
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1_MINIMAL_23DOF-v0 --num_envs 48
+
+# UNITREE 29DOF variant (USD model from unitree_rl_lab)
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1_UNITREE_29DOF-v0 --num_envs 48
 
 # Specify a checkpoint file directly
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py --task Isaac-Velocity-Rough-G1_29DOF-v0 \
