@@ -3,25 +3,47 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+"""G1 27-DOF task: uses G1_29DOF_CFG (29 DOF URDF) but freezes waist_roll + waist_pitch.
+
+This leaves 27 actuated DOF — legs (8) + feet (4) + waist_yaw (1) + arms (14).
+Waist roll/pitch are excluded from both actions and observations; they remain at default pose.
+All other settings identical to G1_MINIMAL_23DOF.
+"""
+
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils import configclass
 
 import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
-from isaaclab_tasks.manager_based.locomotion.velocity.velocity_env_cfg import (
-    LocomotionVelocityRoughEnvCfg,
-    RewardsCfg,
-)
+from isaaclab_tasks.manager_based.locomotion.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg, RewardsCfg
 
 ##
 # Pre-defined configs
 ##
 from isaaclab_assets import G1_29DOF_CFG  # isort: skip
 
+# Joints to control / observe (all EXCEPT waist_roll and waist_pitch — 27 DOF)
+ACTIVE_JOINTS = [
+    ".*_hip_yaw_joint",
+    ".*_hip_roll_joint",
+    ".*_hip_pitch_joint",
+    ".*_knee_joint",
+    "waist_yaw_joint",
+    ".*_ankle_pitch_joint",
+    ".*_ankle_roll_joint",
+    ".*_shoulder_pitch_joint",
+    ".*_shoulder_roll_joint",
+    ".*_shoulder_yaw_joint",
+    ".*_elbow_joint",
+    ".*_wrist_roll_joint",
+    ".*_wrist_pitch_joint",
+    ".*_wrist_yaw_joint",
+]
+
 
 @configclass
-class G129DOFRewards(RewardsCfg):
-    """Reward terms for the G1 29DOF MDP (no hand DOF)."""
+class G129DOFFrozenWaistRewards(RewardsCfg):
+    """Reward terms for the G1 27-DOF MDP (waist roll/pitch frozen)."""
 
     termination_penalty = RewTerm(func=mdp.is_terminated, weight=-200.0)
     track_lin_vel_xy_exp = RewTerm(
@@ -80,35 +102,38 @@ class G129DOFRewards(RewardsCfg):
             )
         },
     )
+    # No joint_deviation_waist_roll_pitch — frozen
     joint_deviation_waist_yaw = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.1,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=["waist_yaw_joint"])},
     )
-    joint_deviation_waist_roll_pitch = RewTerm(
-        func=mdp.joint_deviation_l1,
-        weight=-5.0,
-        params={
-            "asset_cfg": SceneEntityCfg(
-                "robot",
-                joint_names=["waist_roll_joint", "waist_pitch_joint"],
-            )
-        },
-    )
 
 
 @configclass
-class G129DOFRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
-    rewards: G129DOFRewards = G129DOFRewards()
+class G129DOFFrozenWaistRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
+    rewards: G129DOFFrozenWaistRewards = G129DOFFrozenWaistRewards()
 
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
-        # Scene
+
+        # ── Scene ──
         self.scene.robot = G1_29DOF_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/torso_link"
 
-        # Randomization
+        # ── Actions: control only active joints (27 DOF, no waist_roll/pitch) ──
+        self.actions.joint_pos.joint_names = ACTIVE_JOINTS
+
+        # ── Observations: exclude frozen waist joints ──
+        self.observations.policy.joint_pos.params = {
+            "asset_cfg": SceneEntityCfg("robot", joint_names=ACTIVE_JOINTS),
+        }
+        self.observations.policy.joint_vel.params = {
+            "asset_cfg": SceneEntityCfg("robot", joint_names=ACTIVE_JOINTS),
+        }
+
+        # ── Randomization (identical to G1_MINIMAL_23DOF) ──
         self.events.push_robot = None
         self.events.add_base_mass = None
         self.events.reset_robot_joints.params["position_range"] = (1.0, 1.0)
@@ -125,10 +150,10 @@ class G129DOFRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
             },
         }
 
-        # Rewards
+        # ── Rewards (identical to G1_MINIMAL_23DOF) ──
         self.rewards.lin_vel_z_l2.weight = 0.0
         self.rewards.undesired_contacts = None
-        self.rewards.flat_orientation_l2.weight = -5.0
+        self.rewards.flat_orientation_l2.weight = -1.0
         self.rewards.action_rate_l2.weight = -0.005
         self.rewards.dof_acc_l2.weight = -1.25e-7
         self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg(
@@ -139,17 +164,17 @@ class G129DOFRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
             "robot", joint_names=[".*_hip_.*", ".*_knee_joint", ".*_ankle_.*"]
         )
 
-        # Commands
+        # ── Commands (identical to G1_MINIMAL_23DOF) ──
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
         self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
 
-        # terminations
+        # ── Terminations (identical to G1_MINIMAL_23DOF) ──
         self.terminations.base_contact.params["sensor_cfg"].body_names = "torso_link"
 
 
 @configclass
-class G129DOFRoughEnvCfg_PLAY(G129DOFRoughEnvCfg):
+class G129DOFFrozenWaistRoughEnvCfg_PLAY(G129DOFFrozenWaistRoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()

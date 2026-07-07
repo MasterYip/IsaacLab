@@ -139,3 +139,31 @@ Additionally, the reference compensates with:
 3. Reduce action scale from 0.5 to 0.25
 4. Add `base_height_l2` reward (weight=-10, target=0.78)
 5. Consider increasing `dof_pos_limits` weight to -5.0
+
+---
+
+## Applied Changes (2026-07-07)
+
+### 1. Robot Config — `UNITREE_G1_29DOF_CFG` (`unitree.py`)
+
+N5020-16 actuator group — waist joints got dedicated Kp/Kd:
+
+| Parameter | Before | After |
+|-----------|--------|-------|
+| `waist_roll` Kp | 40 | **80** |
+| `waist_pitch` Kp | 40 | **80** |
+| `waist_roll` Kd | 5 | **10** |
+| `waist_pitch` Kd | 5 | **10** |
+
+Other joints in N5020-16 (shoulders, elbow, wrist_roll, ankles) unchanged at Kp=40.
+
+### 2. Env Config — Both 29DOF tasks (`rough_env_cfg_unitree_29dof.py` + `rough_env_cfg_29dof.py`)
+
+| Setting | Before | After |
+|---------|--------|-------|
+| `flat_orientation_l2` weight | -1.0 | **-5.0** |
+| `joint_deviation_waist` (combined) | -0.1 / -2.0 | *split* |
+| `joint_deviation_waist_yaw` (new) | — | **-0.1** |
+| `joint_deviation_waist_roll_pitch` (new) | — | **-2.0** / **-5.0** |
+
+The combined waist deviation reward was split: `waist_yaw` gets a light penalty (-0.1) since it's needed for turning, while `waist_roll` and `waist_pitch` get a heavy penalty to keep them locked at 0° (they shouldn't move during locomotion).

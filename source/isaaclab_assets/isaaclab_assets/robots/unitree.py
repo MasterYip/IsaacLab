@@ -531,3 +531,112 @@ It removes the hand/finger joints, resulting in 29 actuated DOF:
 
 The PD gains match G1_MINIMAL_CFG for all shared joints.
 """
+
+# Path to the Unitree G1 29DOF USD model (from unitree_rl_lab)
+_UNITREE_MODEL_DIR = "/home/user/CodeSpace/Utils/unitree_model"
+
+UNITREE_G1_29DOF_CFG = ArticulationCfg(
+    spawn=sim_utils.UsdFileCfg(
+        usd_path=f"{_UNITREE_MODEL_DIR}/G1/29dof/usd/g1_29dof_rev_1_0/g1_29dof_rev_1_0.usd",
+        activate_contact_sensors=True,
+        rigid_props=sim_utils.RigidBodyPropertiesCfg(
+            disable_gravity=False,
+            retain_accelerations=False,
+            linear_damping=0.0,
+            angular_damping=0.0,
+            max_linear_velocity=1000.0,
+            max_angular_velocity=1000.0,
+            max_depenetration_velocity=1.0,
+        ),
+        articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+            enabled_self_collisions=True, solver_position_iteration_count=8, solver_velocity_iteration_count=4
+        ),
+    ),
+    init_state=ArticulationCfg.InitialStateCfg(
+        pos=(0.0, 0.0, 0.8),
+        joint_pos={
+            "left_hip_pitch_joint": -0.1,
+            "right_hip_pitch_joint": -0.1,
+            ".*_knee_joint": 0.3,
+            ".*_ankle_pitch_joint": -0.2,
+            ".*_shoulder_pitch_joint": 0.3,
+            "left_shoulder_roll_joint": 0.25,
+            "right_shoulder_roll_joint": -0.25,
+            ".*_elbow_joint": 0.97,
+            "left_wrist_roll_joint": 0.15,
+            "right_wrist_roll_joint": -0.15,
+        },
+        joint_vel={".*": 0.0},
+    ),
+    soft_joint_pos_limit_factor=0.9,
+    actuators={
+        "N7520-14.3": ImplicitActuatorCfg(
+            joint_names_expr=[".*_hip_pitch_.*", ".*_hip_yaw_.*", "waist_yaw_joint"],
+            effort_limit_sim=88,
+            velocity_limit_sim=32.0,
+            stiffness={
+                ".*_hip_.*": 100.0,
+                "waist_yaw_joint": 200.0,
+            },
+            damping={
+                ".*_hip_.*": 2.0,
+                "waist_yaw_joint": 5.0,
+            },
+            armature=0.01,
+        ),
+        "N7520-22.5": ImplicitActuatorCfg(
+            joint_names_expr=[".*_hip_roll_.*", ".*_knee_.*"],
+            effort_limit_sim=139,
+            velocity_limit_sim=20.0,
+            stiffness={
+                ".*_hip_roll_.*": 100.0,
+                ".*_knee_.*": 150.0,
+            },
+            damping={
+                ".*_hip_roll_.*": 2.0,
+                ".*_knee_.*": 4.0,
+            },
+            armature=0.01,
+        ),
+        "N5020-16": ImplicitActuatorCfg(
+            joint_names_expr=[
+                ".*_shoulder_.*",
+                ".*_elbow_.*",
+                ".*_wrist_roll.*",
+                ".*_ankle_.*",
+                "waist_roll_joint",
+                "waist_pitch_joint",
+            ],
+            effort_limit_sim=25,
+            velocity_limit_sim=37,
+            stiffness={
+                "waist_.*_joint": 80.0,
+                ".*": 40.0,
+            },
+            damping={
+                ".*_shoulder_.*": 1.0,
+                ".*_elbow_.*": 1.0,
+                ".*_wrist_roll.*": 1.0,
+                ".*_ankle_.*": 2.0,
+                "waist_.*_joint": 10.0,
+            },
+            armature=0.01,
+        ),
+        "W4010-25": ImplicitActuatorCfg(
+            joint_names_expr=[".*_wrist_pitch.*", ".*_wrist_yaw.*"],
+            effort_limit_sim=5,
+            velocity_limit_sim=22,
+            stiffness=40.0,
+            damping=1.0,
+            armature=0.01,
+        ),
+    },
+)
+"""Configuration for the Unitree G1 Humanoid robot with 29 DOF (USD model from unitree_rl_lab).
+
+Actuator groups based on real motor models:
+- N7520-14.3: hip_pitch, hip_yaw, waist_yaw (5 joints) — effort=88, vel=32
+- N7520-22.5: hip_roll, knee (4 joints) — effort=139, vel=20
+- N5020-16: shoulders, elbow, wrist_roll, ankles, waist_roll, waist_pitch (16 joints) — effort=25, vel=37
+- W4010-25: wrist_pitch, wrist_yaw (4 joints) — effort=5, vel=22
+"""
