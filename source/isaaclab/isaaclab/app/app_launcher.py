@@ -692,6 +692,13 @@ class AppLauncher:
                     )
                 else:
                     self._sim_experience_file = os.path.join(isaaclab_app_exp_path, "isaaclab.python.xr.openxr.kit")
+            elif self._headless and self._livestream:
+                # Headless with WebRTC livestream: use headless rendering experience.
+                # The full GUI experience (isaaclab.python.kit) requires online extension
+                # registry access for extensions like omni.kit.menu.edit.
+                self._sim_experience_file = os.path.join(
+                    isaaclab_app_exp_path, "isaaclab.python.headless.rendering.kit"
+                )
             elif self._headless and not self._livestream:
                 self._sim_experience_file = os.path.join(isaaclab_app_exp_path, "isaaclab.python.headless.kit")
             else:
@@ -738,9 +745,10 @@ class AppLauncher:
                     "omni.kit.streamsdk.plugins-4.1.1",
                 ]
             elif self._livestream == 2:
+                _webrtc_port = os.environ.get("WEBRTC_PORT", "49100")
                 self._livestream_args += [
                     f"--/app/livestream/publicEndpointAddress={public_ip_env}",
-                    "--/app/livestream/port=49100",
+                    f"--/app/livestream/port={_webrtc_port}",
                     "--enable",
                     "omni.services.livestream.nvcf",
                 ]
@@ -835,9 +843,10 @@ class AppLauncher:
         For standalone executions, having a stop button is confusing since it invalidates the whole simulation.
         Thus, we hide the button so that users don't accidentally click it.
         """
-        # when we are truly headless, then we can't import the widget toolbar
-        # thus, we only hide the stop button when we are not headless (i.e. GUI is enabled)
-        if self._livestream >= 1 or not self._headless:
+        # When headless, there is no widget toolbar to manipulate.
+        # The livestream only streams the viewport, not the full Kit GUI,
+        # so we skip toolbar manipulation even when livestream is active.
+        if not self._headless:
             import omni.kit.widget.toolbar
 
             # grey out the stop button because we don't want to stop the simulation manually in standalone mode
@@ -897,9 +906,8 @@ class AppLauncher:
         This is used if the timeline is stopped by a GUI action like "save as" to not allow the user to
         resume the timeline afterwards.
         """
-        # when we are truly headless, then we can't import the widget toolbar
-        # thus, we only hide the play button when we are not headless (i.e. GUI is enabled)
-        if self._livestream >= 1 or not self._headless:
+        # When headless, there is no widget toolbar to manipulate
+        if not self._headless:
             import omni.kit.widget.toolbar
 
             toolbar = omni.kit.widget.toolbar.get_instance()
